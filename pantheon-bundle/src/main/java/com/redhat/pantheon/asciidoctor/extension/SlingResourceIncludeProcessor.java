@@ -4,6 +4,8 @@ import com.redhat.pantheon.conf.GlobalConfig;
 import com.redhat.pantheon.model.api.SlingModel;
 import com.redhat.pantheon.model.module.Module;
 import com.redhat.pantheon.model.api.FileResource;
+import com.redhat.pantheon.validation.ValidationsCompleteNotifier;
+import jdk.nashorn.internal.ir.annotations.Reference;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.asciidoctor.ast.Document;
@@ -18,6 +20,8 @@ import static org.apache.jackrabbit.JcrConstants.JCR_PRIMARYTYPE;
 
 public class SlingResourceIncludeProcessor extends IncludeProcessor {
 
+//    @Reference
+//    private ValidationsCompleteNotifier notifier;
     private final Logger log = LoggerFactory.getLogger(SlingResourceIncludeProcessor.class);
 
     private ResourceResolver resolver;
