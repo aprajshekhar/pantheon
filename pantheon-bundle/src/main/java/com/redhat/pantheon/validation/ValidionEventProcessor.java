@@ -3,15 +3,22 @@ package com.redhat.pantheon.validation;
 import com.redhat.pantheon.extension.Event;
 import com.redhat.pantheon.extension.EventProcessingExtension;
 import jdk.nashorn.internal.ir.annotations.Reference;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 
 import java.util.List;
 
+@Component(
+        service = EventProcessingExtension.class
+)
 public class ValidionEventProcessor implements EventProcessingExtension {
 
-    private ValidationsCompleteNotifier validationsCompleteNotifier;
+    private ValidationsCompleteNotifierService validationsCompleteNotifierService;
 
-    public ValidionEventProcessor(@Reference ValidationsCompleteNotifier validationsCompleteNotifier){
-        this.validationsCompleteNotifier = validationsCompleteNotifier;
+    @Activate
+    public ValidionEventProcessor(
+            @Reference ValidationsCompleteNotifierService validationsCompleteNotifierService){
+        this.validationsCompleteNotifierService = validationsCompleteNotifierService;
     }
 
     @Override
@@ -27,6 +34,6 @@ public class ValidionEventProcessor implements EventProcessingExtension {
 
     private void processValidation(List<Validator> validators, CombinedViolations combinedViolations) {
         validators.forEach(validator -> combinedViolations.add(validator.getName(), validator.validate()));
-         this.validationsCompleteNotifier.notifyValidationsCompleteListeners(combinedViolations);
+         this.validationsCompleteNotifierService.notifyValidationsCompleteListeners(combinedViolations);
     }
 }
