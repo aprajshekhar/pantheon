@@ -1,20 +1,21 @@
 package com.redhat.pantheon.servlet;
 
-import com.redhat.pantheon.model.Acknowledgement;
+import com.redhat.pantheon.model.Acknowledgment;
+import com.redhat.pantheon.model.module.AckStatus;
 import com.redhat.pantheon.model.module.Module;
-import com.redhat.pantheon.model.module.Status;
-import com.redhat.pantheon.helper.TransformToPojo;
+import com.redhat.pantheon.validation.events.ValidationsCompleteNotifierService;
+import com.redhat.pantheon.validation.validators.NotNullValidator;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.servlets.HttpConstants;
-import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.apache.sling.servlets.annotations.SlingServletPaths;
-import org.jetbrains.annotations.NotNull;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,15 +26,17 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.sling.query.SlingQuery.$;
 
 /**
- * Simple servlet that saves the status acknowledgement send by
+ * Simple servlet that saves the status acknowledgement sent by
  * an endsystem to a status node
  *
  * @author A.P.Rajshekhar
@@ -47,29 +50,42 @@ import static org.apache.sling.query.SlingQuery.$;
         }
 )
 @SlingServletPaths(value = "/api/status")
-public class StatusAcknowledgeServlet extends SlingAllMethodsServlet {
+public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Acknowledgment> {
     private final Logger logger = LoggerFactory.getLogger(StatusAcknowledgeServlet.class);
+    private NotNullValidator notNullValidator;
+    private ValidationsCompleteNotifierService validationsCompleteNotifierService;
+    public StatusAcknowledgeServlet() {
+        super(Acknowledgment.class);
+    }
+
+    @Activate
+    public StatusAcknowledgeServlet(Class<Acknowledgment> jsonType, @Reference ValidationsCompleteNotifierService validationsCompleteNotifierService,
+                                    @Reference NotNullValidator notNullValidator
+                                    ) {
+        super(jsonType);
+        this.notNullValidator = notNullValidator;
+        this.validationsCompleteNotifierService = validationsCompleteNotifierService;
+    }
+
     @Override
-    protected void doPost(@NotNull SlingHttpServletRequest request, @NotNull SlingHttpServletResponse response) throws ServletException, IOException {
-
-        Acknowledgement acknowledgement = getAcknowledgementData(request);
-
-        if(isObjectNullOrEmpty(acknowledgement)){
-            getLogger().error("The request did not provide all the fiields "+acknowledgement.toString());
+    protected void processPost(SlingHttpServletRequest request, SlingHttpServletResponse response, Acknowledgment acknowledgment)
+            throws ServletException, IOException {
+        if(isObjectNullOrEmpty(acknowledgment)){
+            getLogger().error("The request did not provide all the fiields "+acknowledgment.toString());
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "All the fields are required");
             return;
         }
         try {
-            Resource resource = getResourceByUuid(acknowledgement.getId(), request);
+            Resource resource = getResourceByUuid(acknowledgment.getId(), request);
             Module module =  resource.adaptTo(Module.class);
             List<Resource> moduleLocale =  $(module).find("pant:moduleLocale").asList();
 
             if(!hasLocale(moduleLocale, "en_US")){
-                getLogger().error("The module with id="+acknowledgement.getId()+" does not have en_US locale");
+                getLogger().error("The module with id="+acknowledgment.getId()+" does not have en_US locale");
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Locale other than en_US is not supported");
                 return;
             }
-            processAcknowledgementRequest(acknowledgement, module, moduleLocale);
+            processAcknowledgementRequest(acknowledgment, module, moduleLocale, request.getUserPrincipal().getName());
 
         } catch (RepositoryException|PersistenceException e) {
             getLogger().error("The request could not be processed because of error="+e.getMessage(), e);
@@ -82,11 +98,16 @@ public class StatusAcknowledgeServlet extends SlingAllMethodsServlet {
      * @param acknowledgement the acknowledement object containing request data
      * @return true if not all fields have data else return false
      */
-    private boolean isObjectNullOrEmpty(Acknowledgement acknowledgement) {
-        return null == acknowledgement ||
-                Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
-                        acknowledgement.getSender(),acknowledgement.getStatus())
-                        .anyMatch(Objects::isNull);
+    private boolean isObjectNullOrEmpty(Acknowledgment acknowledgement) {
+        return null == acknowledgement ||validate(acknowledgement);
+
+    }
+
+    private boolean validate(Acknowledgment acknowledgement) {
+        notNullValidator.setObjectsToValidate( Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
+                acknowledgement.getSender(),acknowledgement.getStatus())
+                .collect(Collectors.toList()));
+         return notNullValidator.validate().hasViolations();
     }
 
     /**
@@ -97,13 +118,13 @@ public class StatusAcknowledgeServlet extends SlingAllMethodsServlet {
      * @param moduleLocale list of locales in the module
      * @throws PersistenceException signals that request data could not be saved
      */
-    private void processAcknowledgementRequest(Acknowledgement acknowledgement, Module module,
-                                               List<Resource> moduleLocale) throws PersistenceException {
+    private void processAcknowledgementRequest(Acknowledgment acknowledgement, Module module,
+                                               List<Resource> moduleLocale, String lastModifiedBy) throws PersistenceException {
 
         for (Resource locale : moduleLocale) {
             //defensive programming: double check that only for en_US locale the status node is created
             if(locale.getName().equalsIgnoreCase("en_US")) {
-                createStatusNode(locale, module, acknowledgement);
+                createStatusNode(locale, module, acknowledgement, lastModifiedBy);
                 break;
             }
         }
@@ -113,18 +134,31 @@ public class StatusAcknowledgeServlet extends SlingAllMethodsServlet {
         return moduleLocale.stream().anyMatch(ml -> ml.getName().equalsIgnoreCase(locale));
     }
 
-    private Acknowledgement getAcknowledgementData(@NotNull SlingHttpServletRequest request) throws IOException {
-        TransformToPojo transformToPojo = new TransformToPojo();
-        return transformToPojo.fromJson(Acknowledgement.class, request.getReader());
-    }
-
-    private void createStatusNode(Resource moduleLocale, Module module, Acknowledgement acknowledgement) throws PersistenceException {
+    private void createStatusNode(Resource moduleLocale, Module module, Acknowledgment acknowledgement, String lastModifiedBy) throws PersistenceException {
         Locale locale = LocaleUtils.toLocale(moduleLocale.getName());
-        Status status = module.getReleasedVersion(locale).get().status().getOrCreate();
+        AckStatus status = createStatusNode(module, locale);
         status.status().set(acknowledgement.getStatus());
         status.message().set(acknowledgement.getMessage());
         status.sender().set(acknowledgement.getSender());
+        Calendar now = Calendar.getInstance();
+        status.dateModified().set(now);
+        // update lastModifiedBy
+        status.lastModifiedBy().set(lastModifiedBy);
         status.getResourceResolver().commit();
+    }
+
+    /**
+     * Creates or retrives status node based on whether a published version exists.
+     * If a published version exists, either create a new status node if it does not exist
+     * @param module
+     * @param locale
+     * @return
+     */
+    private AckStatus createStatusNode(Module module, Locale locale) {
+        if(module.getReleasedVersion(locale).isPresent()){
+            return module.getReleasedVersion(locale).get().ackStatus().getOrCreate();
+        }
+        return module.getDraftVersion(locale).get().ackStatus().getOrCreate();
     }
 
     /**

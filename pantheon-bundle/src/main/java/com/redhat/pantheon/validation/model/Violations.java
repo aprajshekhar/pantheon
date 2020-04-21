@@ -17,6 +17,6 @@ public class Violations {
     }
 
     public boolean hasViolations(){
-        return errorMap.isEmpty();
+        return !errorMap.isEmpty();
     }
 }

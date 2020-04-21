@@ -22,6 +22,7 @@
     # Create the sling users
     create group pantheon-authors
     create group pantheon-publishers
+    create group pantheon-statusProvider
     create service user pantheon
     create user sync-service with password sync-service
 
@@ -63,4 +64,8 @@
 
     set ACL for sync-service
         allow jcr:all on /content/repositories
+    end
+
+    set ACL for pantheon-statusProvider
+        allow jcr:write on /content/repositories restriction(rep:ntNames,pant:acknowledgment)
     end
