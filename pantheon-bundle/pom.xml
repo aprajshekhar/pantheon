@@ -54,7 +54,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
-                <version>4.2.0</version>
+                <version>4.1.0</version>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>com.redhat.pantheon</Bundle-SymbolicName>
@@ -82,6 +82,8 @@
                             !org.apache.tools.ant,!org.joda.convert,!org.objectweb.asm,!sun.misc,
                             !javax.ejb,
                             !javax.jmdns,
+                            !com.google.appengine.api,
+                            !com.google.apphosting.api,
                             !org.apache.commons.net.ftp,*
                         </Import-Package>
                         <!-- Embed the necessary dependencies -->

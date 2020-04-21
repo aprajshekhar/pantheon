@@ -52,24 +52,28 @@ import static org.apache.sling.query.SlingQuery.$;
 @SlingServletPaths(value = "/api/status")
 public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Acknowledgment> {
     private final Logger logger = LoggerFactory.getLogger(StatusAcknowledgeServlet.class);
+    @Reference
     private NotNullValidator notNullValidator;
+    @Reference
     private ValidationsCompleteNotifierService validationsCompleteNotifierService;
+
     public StatusAcknowledgeServlet() {
         super(Acknowledgment.class);
     }
 
-    @Activate
-    public StatusAcknowledgeServlet(Class<Acknowledgment> jsonType, @Reference ValidationsCompleteNotifierService validationsCompleteNotifierService,
-                                    @Reference NotNullValidator notNullValidator
-                                    ) {
-        super(jsonType);
-        this.notNullValidator = notNullValidator;
-        this.validationsCompleteNotifierService = validationsCompleteNotifierService;
-    }
+//    @Activate
+//    public StatusAcknowledgeServlet(@Reference ValidationsCompleteNotifierService validationsCompleteNotifierService, Class<Acknowledgment> jsonType
+//
+//                                    ) {
+//        super(jsonType);
+//        this.notNullValidator = notNullValidator;
+//        this.validationsCompleteNotifierService = validationsCompleteNotifierService;
+//    }
 
     @Override
     protected void processPost(SlingHttpServletRequest request, SlingHttpServletResponse response, Acknowledgment acknowledgment)
             throws ServletException, IOException {
+        getLogger().info("notifier service="+validationsCompleteNotifierService);
         if(isObjectNullOrEmpty(acknowledgment)){
             getLogger().error("The request did not provide all the fiields "+acknowledgment.toString());
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "All the fields are required");

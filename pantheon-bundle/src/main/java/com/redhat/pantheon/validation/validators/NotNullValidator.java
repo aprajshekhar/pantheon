@@ -2,9 +2,12 @@ package com.redhat.pantheon.validation.validators;
 
 import com.redhat.pantheon.validation.model.ErrorDetails;
 import com.redhat.pantheon.validation.model.Violations;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 @Component( service = NotNullValidator.class,
@@ -17,16 +20,14 @@ public class NotNullValidator implements Validator {
 
     private List<Object> objectsToValidate;
 
-//    @Activate
-//    public void initialize() {
-//        objectsToValidate = new ArrayList<>();
-//    }
-//
-//    public NotNullValidator(Object... objectsToValidate) {
-//        this.setObjectsToValidate(new ArrayList<>(
-//                Arrays.asList(objectsToValidate)
-//        ));
-//    }
+    @Activate
+    public NotNullValidator(){
+        objectsToValidate = new ArrayList<>();
+    }
+
+    public NotNullValidator(List<Object> objectsToValidate) {
+        this.objectsToValidate = objectsToValidate;
+    }
     @Override
     public Violations validate() {
         return checkIfNull(new Violations());
