@@ -1,4 +1,4 @@
-package com.redhat.pantheon.validation;
+package com.redhat.pantheon.validation.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,5 +14,9 @@ public class Violations {
 
     public ErrorDetails get(String violation){
         return errorMap.get(violation);
+    }
+
+    public boolean hasViolations(){
+        return errorMap.isEmpty();
     }
 }

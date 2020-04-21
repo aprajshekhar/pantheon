@@ -1,4 +1,4 @@
-package com.redhat.pantheon.validation;
+package com.redhat.pantheon.validation.model;
 
 import java.util.ArrayList;
 import java.util.List;
