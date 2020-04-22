@@ -33,7 +33,7 @@ public class Events {
     }
 
     public void fireEvent(Event evt, int delayInsecs) {
-        final long delay = delayInsecs * 2000;
+        final long delay = delayInsecs * 1000;
         final Date fireDate = new Date();
         fireDate.setTime(System.currentTimeMillis() + delay);
         Map<String, Object> props = newHashMap();

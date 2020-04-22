@@ -2,13 +2,14 @@ package com.redhat.pantheon.validation.model;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Holds the details of the component/caller of the validator. This would come into
  *  picture only when event based validation is used
  */
-public class ValidationClientDetails implements Comparable<String> {
+public class ValidationClientDetails implements Comparable<String>, Serializable {
     private String componentName;
     private Date when;
 

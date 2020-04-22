@@ -2,10 +2,9 @@ package com.redhat.pantheon.validation.events;
 
 import com.redhat.pantheon.extension.Event;
 import com.redhat.pantheon.extension.EventProcessingExtension;
-
+import com.redhat.pantheon.validation.model.CombinedViolations;
 import com.redhat.pantheon.validation.model.ValidationClientDetails;
 import com.redhat.pantheon.validation.validators.Validator;
-import com.redhat.pantheon.validation.model.CombinedViolations;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -15,8 +14,9 @@ import java.util.List;
 /**
  * The event processor for  {@see ValidationTriggerEvent}.
  * <p>
- *     The payload of the event would have one or more validators. The processor
- *     would execute each of the validators and add the validator result against each
+ *     The payload of the event would have one or more validators' names. The processor
+ *     would execute each of the validators by getting the validators from Selected validator service
+ *     and add the validator result against each
  *     validator. Once all the validators are executed, the processor notifies all the
  *     listeners waiting for validation to be completed and pass the accumulated
  *     result.
@@ -25,9 +25,11 @@ import java.util.List;
 @Component(
         service = EventProcessingExtension.class
 )
-public class ValidionEventProcessor implements EventProcessingExtension {
+public class ValidionTriggerProcessor implements EventProcessingExtension {
 
     private ValidationsCompleteNotifierService validationsCompleteNotifierService;
+    @Reference
+    private SelectedValidationsService selectedValidationsService;
     /**
      * Instantiates a new Validion event processor by injecting the notifier service
      *
@@ -35,24 +37,24 @@ public class ValidionEventProcessor implements EventProcessingExtension {
      *                                          when all the validators in the event payload are executed
      */
     @Activate
-    public ValidionEventProcessor(
+    public ValidionTriggerProcessor(
             @Reference ValidationsCompleteNotifierService validationsCompleteNotifierService){
         this.validationsCompleteNotifierService = validationsCompleteNotifierService;
     }
 
     @Override
     public boolean canProcessEvent(Event event) {
-        return ValidationTriggerEvent.class.isAssignableFrom(event.getClass());
+        return true;
     }
 
     @Override
     public void processEvent(Event event) throws Exception {
-        ValidationTriggerEvent validationTriggerEvent = (ValidationTriggerEvent)event;
-        processValidation(validationTriggerEvent.getValidators(), validationTriggerEvent.getValidationClientDetails(), new CombinedViolations());
+        ValidationTrigger validationTriggerEvent = (ValidationTrigger) event;
+        processValidation(validationTriggerEvent.getNames(), validationTriggerEvent.getComponent(), new CombinedViolations());
     }
 
     /**
-     *  Executes all the validators in the payload and combine all the results. The details of component
+     *  Executes all the validators provided in the SelectedValdations and combine all the results. The details of component
      *  that has triggered this event is set as a part of the combined result.
      *  Once all the  validators are executed, the notifier service is invoked to notify all the listeners that
      *   all the validators have been executed
@@ -60,9 +62,9 @@ public class ValidionEventProcessor implements EventProcessingExtension {
      * @param validationClientDetails
      * @param combinedViolations combined result
      */
-    private void processValidation(List<Validator> validators, ValidationClientDetails validationClientDetails, CombinedViolations combinedViolations) {
-        validators.forEach(validator -> combinedViolations.add(validator.getName(), validator.validate()));
-        combinedViolations.setValidationClientDetails(validationClientDetails);
-         this.validationsCompleteNotifierService.notifyValidationsCompleteListeners(combinedViolations);
+    private void processValidation(String validators, String validationClientDetails, CombinedViolations combinedViolations) {
+        selectedValidationsService.getValidators().stream().forEach(validator -> combinedViolations.add(validator.getName(), validator.validate()));
+        combinedViolations.setValidationClientDetails(new ValidationClientDetails(validationClientDetails));
+        this.validationsCompleteNotifierService.notifyValidationsCompleteListeners(combinedViolations);
     }
 }

@@ -4,6 +4,8 @@ import com.redhat.pantheon.extension.Events;
 import com.redhat.pantheon.model.Acknowledgment;
 import com.redhat.pantheon.model.module.AckStatus;
 import com.redhat.pantheon.model.module.Module;
+import com.redhat.pantheon.validation.events.SelectedValidationsService;
+import com.redhat.pantheon.validation.events.ValidationTrigger;
 import com.redhat.pantheon.validation.events.ValidationTriggerEvent;
 import com.redhat.pantheon.validation.events.ValidationsCompleteNotifierService;
 import com.redhat.pantheon.validation.model.ValidationClientDetails;
@@ -58,7 +60,8 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
     private NotNullValidator notNullValidator;
     @Reference
     private ValidationsCompleteNotifierService validationsCompleteNotifierService;
-
+    @Reference
+    private SelectedValidationsService selectedValidationsService;
     @Reference
     private Events events;
     public StatusAcknowledgeServlet() {
@@ -120,10 +123,11 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
         //for unit test case
         if(null!=events) {
             validationsCompleteNotifierService.registerValidationsCompleteListener(
-                    combinedViolations -> getLogger().info(combinedViolations.getAll().toString())
+                    combinedViolations -> getLogger().info(combinedViolations.getViolations("NotNull").toString())
             );
-            events.fireEvent(new ValidationTriggerEvent(new ValidationClientDetails("StatusAcknowledgementServlet")
-                    , notNullValidator), 200);
+            selectedValidationsService.setValidators(Stream.of(notNullValidator).collect(Collectors.toList()));
+            selectedValidationsService.setValidationClientDetails(new ValidationClientDetails("StatusAck"));
+            events.fireEvent(new ValidationTrigger("NotNullValidator", "StatusAck"), 100);
         }
     }
 
