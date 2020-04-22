@@ -6,7 +6,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The service that keeps track of all the listeners for validations completed event
@@ -16,14 +19,15 @@ import java.util.List;
 @Component(service = ValidationsCompleteNotifierService.class,
 scope = ServiceScope.SINGLETON)
 public class ValidationsCompleteNotifierService {
-    private List<ValidationsCompleteListener> listeners;
+    private final Set<ValidationsCompleteListener> listeners;
 
     /**
      * Initialize the list that holds all the registered listeners
      */
     @Activate
-    public void initialize(){
-        listeners = new ArrayList<>();
+    public ValidationsCompleteNotifierService(){
+        listeners = Collections.newSetFromMap(
+                new ConcurrentHashMap<ValidationsCompleteListener, Boolean>(0));
     }
 
     /**
@@ -46,7 +50,7 @@ public class ValidationsCompleteNotifierService {
     }
 
     /**
-     * Notify validations complete listeners.
+     * Notify all validations complete listeners that all the validators have been executed
      *
      * @param combinedViolations the combined violations
      */

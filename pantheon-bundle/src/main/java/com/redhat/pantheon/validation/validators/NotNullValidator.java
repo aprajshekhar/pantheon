@@ -2,14 +2,22 @@ package com.redhat.pantheon.validation.validators;
 
 import com.redhat.pantheon.validation.model.ErrorDetails;
 import com.redhat.pantheon.validation.model.Violations;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import java.util.List;
+import java.util.Objects;
+
+/**
+ *  This is a sample validator that
+ *  <p>
+ *      <ol>Provides logic to check passed object is null or not </ol>
+ *      <ol>Accepts the data via setter when injected</ol>
+ *      <ol>Accepts the data via constructor instantiated normally</ol>
+ *      <ol>Returns its unique name via getName()</ol>
+ *      <ol>Returns the constraint violations via {@see Violations} instance</ol>
+ *  </p>
+ */
 @Component( service = NotNullValidator.class,
         property = {
             Constants.SERVICE_DESCRIPTION + "=Provides validation services",
@@ -19,12 +27,7 @@ import org.osgi.service.component.annotations.Component;
 public class NotNullValidator implements Validator {
 
     private List<Object> objectsToValidate;
-
-    @Activate
-    public NotNullValidator(){
-        objectsToValidate = new ArrayList<>();
-    }
-
+   public NotNullValidator(){}
     public NotNullValidator(List<Object> objectsToValidate) {
         this.objectsToValidate = objectsToValidate;
     }
@@ -46,7 +49,7 @@ public class NotNullValidator implements Validator {
     }
 
     /**
-     * Gets name of the validator
+     * Gets  unique name of the validator
      *
      * @return the name of the validator
      */

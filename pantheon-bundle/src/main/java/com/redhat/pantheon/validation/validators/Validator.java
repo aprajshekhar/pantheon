@@ -3,7 +3,18 @@ package com.redhat.pantheon.validation.validators;
 import com.redhat.pantheon.validation.model.Violations;
 
 /**
- * The interface which all validators should implement
+ * The interface which all validators should implement. Each validator would decide
+ *  <p>
+ *      <ol>How to accept data</ol>
+ *      <ol>How to implement validation logic</ol>
+ *      <ol>Which data types, and/or models should be accepted for validation</ol>
+ *  </p>
+ *  The  commonality amongst the validators should be
+ *  <p>
+ *      <ol>Implement validate method</ol>
+ *      <ol>The result should be an instance of {@see Violations} class</ol>
+ *      <ol>Each validator should override the getName and provide its <b>unique name</b></ol>
+ *  </p>
  * @author A.P. Rajshekhar
  */
 public interface Validator {

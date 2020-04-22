@@ -1,6 +1,7 @@
 package com.redhat.pantheon.validation.events;
 
 import com.redhat.pantheon.extension.Event;
+import com.redhat.pantheon.validation.model.ValidationClientDetails;
 import com.redhat.pantheon.validation.validators.Validator;
 
 import java.util.ArrayList;
@@ -14,13 +15,15 @@ import java.util.List;
  */
 public class ValidationTriggerEvent implements Event {
     private List<Validator> validators = new ArrayList<>();
+    private ValidationClientDetails validationClientDetails;
 
     /**
      * Instantiates a new Validation trigger event with validators as payload
      *
      * @param validators the validators that need to be executed
      */
-    public ValidationTriggerEvent(Validator... validators) {
+    public ValidationTriggerEvent( ValidationClientDetails validationClientDetails, Validator... validators) {
+        this.validationClientDetails = validationClientDetails;
         this.validators = new ArrayList<>(Arrays.asList(validators));
     }
 
@@ -31,5 +34,13 @@ public class ValidationTriggerEvent implements Event {
      */
     public List<Validator> getValidators() {
         return validators;
+    }
+
+    /**
+     *  Gets the details of the component that triggered this validation event
+     * @return the details of the caller/component
+     */
+    public ValidationClientDetails getValidationClientDetails() {
+        return validationClientDetails;
     }
 }

@@ -13,7 +13,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.servlets.annotations.SlingServletPaths;
 import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +50,7 @@ import static org.apache.sling.query.SlingQuery.$;
 @SlingServletPaths(value = "/api/status")
 public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Acknowledgment> {
     private final Logger logger = LoggerFactory.getLogger(StatusAcknowledgeServlet.class);
+    //the injection can be done via CTOR, setter or field. For sample validator, I have used field injection
     @Reference
     private NotNullValidator notNullValidator;
     @Reference
@@ -61,19 +60,10 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
         super(Acknowledgment.class);
     }
 
-//    @Activate
-//    public StatusAcknowledgeServlet(@Reference ValidationsCompleteNotifierService validationsCompleteNotifierService, Class<Acknowledgment> jsonType
-//
-//                                    ) {
-//        super(jsonType);
-//        this.notNullValidator = notNullValidator;
-//        this.validationsCompleteNotifierService = validationsCompleteNotifierService;
-//    }
-
     @Override
     protected void processPost(SlingHttpServletRequest request, SlingHttpServletResponse response, Acknowledgment acknowledgment)
             throws ServletException, IOException {
-        getLogger().info("notifier service="+validationsCompleteNotifierService);
+        getLogger().info("notifier service="+ getValidationsCompleteNotifierService());
         if(isObjectNullOrEmpty(acknowledgment)){
             getLogger().error("The request did not provide all the fiields "+acknowledgment.toString());
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "All the fields are required");
@@ -108,10 +98,14 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
     }
 
     private boolean validate(Acknowledgment acknowledgement) {
-        notNullValidator.setObjectsToValidate( Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
+        //how the data is passed to validator is left to the implementing class. In the case of sample NotNullValidator
+        //data is passed via setter
+        getNotNullValidator().setObjectsToValidate( Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
                 acknowledgement.getSender(),acknowledgement.getStatus())
                 .collect(Collectors.toList()));
-         return notNullValidator.validate().hasViolations();
+        //using event for the same
+
+         return getNotNullValidator().validate().hasViolations();
     }
 
     /**
@@ -188,5 +182,21 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
      */
     public Logger getLogger() {
         return logger;
+    }
+
+    public NotNullValidator getNotNullValidator() {
+        return notNullValidator;
+    }
+
+    public void setNotNullValidator(NotNullValidator notNullValidator) {
+        this.notNullValidator = notNullValidator;
+    }
+
+    public ValidationsCompleteNotifierService getValidationsCompleteNotifierService() {
+        return validationsCompleteNotifierService;
+    }
+
+    public void setValidationsCompleteNotifierService(ValidationsCompleteNotifierService validationsCompleteNotifierService) {
+        this.validationsCompleteNotifierService = validationsCompleteNotifierService;
     }
 }
