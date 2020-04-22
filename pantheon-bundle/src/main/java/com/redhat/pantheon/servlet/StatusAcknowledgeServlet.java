@@ -1,9 +1,12 @@
 package com.redhat.pantheon.servlet;
 
+import com.redhat.pantheon.extension.Events;
 import com.redhat.pantheon.model.Acknowledgment;
 import com.redhat.pantheon.model.module.AckStatus;
 import com.redhat.pantheon.model.module.Module;
+import com.redhat.pantheon.validation.events.ValidationTriggerEvent;
 import com.redhat.pantheon.validation.events.ValidationsCompleteNotifierService;
+import com.redhat.pantheon.validation.model.ValidationClientDetails;
 import com.redhat.pantheon.validation.validators.NotNullValidator;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -56,6 +59,8 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
     @Reference
     private ValidationsCompleteNotifierService validationsCompleteNotifierService;
 
+    @Reference
+    private Events events;
     public StatusAcknowledgeServlet() {
         super(Acknowledgment.class);
     }
@@ -104,8 +109,22 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
                 acknowledgement.getSender(),acknowledgement.getStatus())
                 .collect(Collectors.toList()));
         //using event for the same
+        NotNullValidator notNullValidator = new NotNullValidator(Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
+                acknowledgement.getSender(),acknowledgement.getStatus())
+                .collect(Collectors.toList()));
+        eventBasedValidation(notNullValidator);
+        return getNotNullValidator().validate().hasViolations();
+    }
 
-         return getNotNullValidator().validate().hasViolations();
+    private void eventBasedValidation(NotNullValidator notNullValidator) {
+        //for unit test case
+        if(null!=events) {
+            validationsCompleteNotifierService.registerValidationsCompleteListener(
+                    combinedViolations -> getLogger().info(combinedViolations.getAll().toString())
+            );
+            events.fireEvent(new ValidationTriggerEvent(new ValidationClientDetails("StatusAcknowledgementServlet")
+                    , notNullValidator), 200);
+        }
     }
 
     /**

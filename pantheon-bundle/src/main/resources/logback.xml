@@ -10,4 +10,7 @@
     <logger name="com.redhat" level="debug">
         <appender-ref ref="CONSOLE"/>
     </logger>
+    <logger name="org.apache.sling.resourceresolver" level="debug">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
 </included>

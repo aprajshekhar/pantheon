@@ -2,6 +2,8 @@ package com.redhat.pantheon.validation.validators;
 
 import com.redhat.pantheon.validation.model.Violations;
 
+import java.io.Serializable;
+
 /**
  * The interface which all validators should implement. Each validator would decide
  *  <p>
@@ -17,7 +19,7 @@ import com.redhat.pantheon.validation.model.Violations;
  *  </p>
  * @author A.P. Rajshekhar
  */
-public interface Validator {
+public interface Validator extends Serializable {
     /**
      * Validates an object(s) by executing the validation logic
      * The implementing class provides the logic and returns the errors

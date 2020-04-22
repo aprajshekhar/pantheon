@@ -14,7 +14,7 @@ import java.util.List;
  * @author A.P. Rajshekhar
  */
 public class ValidationTriggerEvent implements Event {
-    private List<Validator> validators = new ArrayList<>();
+    private List<Validator> validators;
     private ValidationClientDetails validationClientDetails;
 
     /**
