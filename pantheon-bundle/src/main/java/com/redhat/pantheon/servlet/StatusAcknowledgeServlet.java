@@ -111,19 +111,24 @@ public class StatusAcknowledgeServlet extends AbstractJsonPostOrPutServlet<Ackno
         getNotNullValidator().setObjectsToValidate( Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
                 acknowledgement.getSender(),acknowledgement.getStatus())
                 .collect(Collectors.toList()));
+
+        NotNullValidator notNullValidator = new NotNullValidator(Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
+                acknowledgement.getSender(),acknowledgement.getStatus())
+                .collect(Collectors.toList()));
+        //using event for the same
+        eventBasedValidation(acknowledgement);
+        return getNotNullValidator().validate().hasViolations();
+    }
+
+    private void eventBasedValidation(Acknowledgment acknowledgement) {
         //using event for the same
         NotNullValidator notNullValidator = new NotNullValidator(Stream.of(acknowledgement.getId(), acknowledgement.getMessage(),
                 acknowledgement.getSender(),acknowledgement.getStatus())
                 .collect(Collectors.toList()));
-        eventBasedValidation(notNullValidator);
-        return getNotNullValidator().validate().hasViolations();
-    }
-
-    private void eventBasedValidation(NotNullValidator notNullValidator) {
         //for unit test case
         if(null!=events) {
             validationsCompleteNotifierService.registerValidationsCompleteListener(
-                    combinedViolations -> getLogger().info(combinedViolations.getViolations("NotNull").toString())
+                    combinedViolations -> getLogger().info(combinedViolations.getAll().toString())
             );
             selectedValidationsService.setValidators(Stream.of(notNullValidator).collect(Collectors.toList()));
             selectedValidationsService.setValidationClientDetails(new ValidationClientDetails("StatusAck"));

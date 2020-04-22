@@ -63,8 +63,18 @@ public class ValidionTriggerProcessor implements EventProcessingExtension {
      * @param combinedViolations combined result
      */
     private void processValidation(String validators, String validationClientDetails, CombinedViolations combinedViolations) {
-        selectedValidationsService.getValidators().stream().forEach(validator -> combinedViolations.add(validator.getName(), validator.validate()));
+        selectedValidationsService.getValidators()
+                .stream().
+                filter(validator -> checkValidatorNames(validator, validators))
+                .forEach(validator -> combinedViolations.add(validator.getName(), validator.validate()));
         combinedViolations.setValidationClientDetails(new ValidationClientDetails(validationClientDetails));
         this.validationsCompleteNotifierService.notifyValidationsCompleteListeners(combinedViolations);
+    }
+
+    private boolean checkValidatorNames(Validator validator, String validators) {
+        for (String name: validators.split(",")) {
+            return name.equalsIgnoreCase(validator.getName());
+        }
+        return false;
     }
 }
