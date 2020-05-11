@@ -27,7 +27,7 @@
         <feature>sling-discovery-oak</feature>
         <feature>sling-quickstart-oak-mongo</feature>
         <feature>sling-starter-content</feature>
-
+        <feature>eventadmin</feature>
         <config name="org.apache.sling.serviceusermapping.impl.ServiceUserMapperImpl.amended-com.redhat.pantheon">
             user.mapping=[\
             "com.redhat.pantheon\=pantheon"\
@@ -88,9 +88,12 @@
         </config>
         <!-- Override the mongodb url -->
         <config name="org.apache.jackrabbit.oak.plugins.document.DocumentNodeStoreService">
-            mongouri="mongodb://localhost:30001,localhost:30002,localhost:30003/test"
-            db="sling"
-            repository.home="sling/repository"
+            mongouri=${env:MONGO_DB_REPLICA}
+            db=${env:MONGO_DB}
+            repository.home=${env:REPOSITORY}
+        </config>
+        <config name="com.redhat.pantheon.static.properties">
+            propertieFilePath=${env:PATH1}
         </config>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/2.9.9</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/2.9.9</bundle>
