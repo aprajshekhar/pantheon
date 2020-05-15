@@ -1,16 +1,17 @@
 set -o allexport
 
-CONF_FILE=./pantheon_karaf.exports
-
-if [[ -f ~/.pantheon/pantheon_karaf.exports ]]; then
-    CONF_FILE=~/.pantheon/pantheon_karaf.exports
-fi
-
 if [ -z "$PANTHEON_CODEBASE" ]
 then
       echo "\$PANTHEON_CODEBASE is empty"
       exit 1
 fi
+
+CONF_FILE=$PANTHEON_CODEBASE/scripts/pantheon_karaf.exports
+
+if [[ -f ~/.pantheon/pantheon_karaf.exports ]]; then
+    CONF_FILE=~/.pantheon/pantheon_karaf.exports
+fi
+
 
 source $CONF_FILE
 set +o allexport
