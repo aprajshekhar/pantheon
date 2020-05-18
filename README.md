@@ -37,6 +37,8 @@ Head to http://localhost:8181/pantheon for the application's entry point.
 
 For sling's management UI, you can head to http://localhost:8181/starter/index.html
 
+**Note:** If you plan to use git import UI locally, please follow the instructions in README under tools/git2pantheon. Also you will need to set the credentials of the user that would be used by git2pantheon to push the repository. It can be done by using environment variables (for both podman based and non-podman based).
+
 ### Other use cases...
 
 
