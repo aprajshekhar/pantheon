@@ -61,10 +61,29 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.sling</groupId>
-      <artifactId>org.apache.sling.karaf-configs</artifactId>
-      <version>0.1.1-SNAPSHOT</version>
-    </dependency>
+	    <groupId>com.github.apache</groupId>
+	    <artifactId>sling-org-apache-sling-karaf-configs</artifactId>
+	    <version>master-SNAPSHOT</version>
+	</dependency>
   </dependencies>
-
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+  <repository>
+    <id>maven2-central-repository</id>
+    <name>Maven2 central Repository</name>
+    <url>https://repo1.maven.org/maven2</url>
+    <layout>default</layout>
+    <releases>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+    </releases>
+    <snapshots>
+        <enabled>false</enabled>
+        <updatePolicy>daily</updatePolicy>
+    </snapshots>
+</repository>
+</repositories>
 </project>
