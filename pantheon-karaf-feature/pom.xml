@@ -60,6 +60,9 @@
   </build>
 
   <dependencies>
+    <!-- The apache.org.sling.karaf-configs dependency needs to be built 
+    Using jitpack.io for the same
+    -->
     <dependency>
 	    <groupId>com.github.apache</groupId>
 	    <artifactId>sling-org-apache-sling-karaf-configs</artifactId>
@@ -67,10 +70,12 @@
 	</dependency>
   </dependencies>
 <repositories>
+  <!-- The repository for karf-configs -->
   <repository>
     <id>jitpack.io</id>
     <url>https://jitpack.io</url>
   </repository>
+  <!-- The repository for maven-karaf-plugin -->
   <repository>
     <id>maven2-central-repository</id>
     <name>Maven2 central Repository</name>
