@@ -39,4 +39,4 @@ jobs:
         with:
          java-version: 1.8
       - name: Version rev with Maven
-        run: mvn clean install  -U -pl pantheon-bundle,pantheon-karaf-feature,pantheon-karaf-dist --file pom.xml
+        run: mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion} versions:commit --file pom.xml
