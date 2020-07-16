@@ -298,7 +298,7 @@ def process_file(path, filetype):
 
         if not args.dry:
             r = requests.post(url, headers=HEADERS, data=data, files=files, auth=(args.user, pw))
-            _print_response('assembly', path, r.status_code, r.reason)
+            _print_response('assembly', path, r.status_code, r.text)
     logger.debug('')
 
 
