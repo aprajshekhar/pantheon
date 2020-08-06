@@ -1,3 +1,4 @@
+
 name: CI build
 
 on:
@@ -59,3 +60,4 @@ jobs:
         flags: java # optional
         name: codecov-java # optional
         #fail_ci_if_error: true # optional (default = false)
+
