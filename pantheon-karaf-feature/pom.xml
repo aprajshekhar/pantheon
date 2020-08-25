@@ -55,9 +55,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.sling</groupId>
-            <artifactId>org.apache.sling.karaf-configs</artifactId>
-            <version>0.1.1-SNAPSHOT</version>
+            <groupId>com.github.aprajshekhar</groupId>
+            <artifactId>sling-org-apache-sling-karaf-configs</artifactId>
+            <version>master-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <repositories>       
@@ -83,6 +83,12 @@
 <!--                <enabled>true</enabled>-->
 <!--            </snapshots>-->
 <!--        </repository>-->
+
+            <repository>
+                <id>jitpack.io</id>
+                <url>https://jitpack.io</url>
+            </repository>
+
     </repositories>
     <pluginRepositories>
         <pluginRepository>
