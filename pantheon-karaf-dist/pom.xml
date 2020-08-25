@@ -224,13 +224,13 @@
 <!--                <enabled>true</enabled>-->
 <!--            </snapshots>-->
 <!--        </repository>-->
-        <repositories>
+
             <repository>
                 <id>jitpack.io</id>
                 <url>https://jitpack.io</url>
             </repository>
         </repositories>
-    </repositories>
+    
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-central-repository</id>
