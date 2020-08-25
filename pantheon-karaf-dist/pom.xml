@@ -230,7 +230,7 @@
                 <url>https://jitpack.io</url>
             </repository>
         </repositories>
-    
+
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-central-repository</id>

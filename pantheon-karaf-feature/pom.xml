@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.github.aprajshekhar</groupId>
             <artifactId>sling-org-apache-sling-karaf-configs</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <repositories>       
