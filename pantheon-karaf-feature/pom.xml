@@ -57,8 +57,14 @@
         <dependency>
             <groupId>com.github.aprajshekhar</groupId>
             <artifactId>sling-org-apache-sling-karaf-configs</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>master-SNAPSHOT</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.github.aprajshekhar</groupId>-->
+<!--            <artifactId>sling-org-apache-sling-karaf-features</artifactId>-->
+<!--            <version>master-SNAPSHOT</version>-->
+<!--            <type>feature</type>-->
+<!--        </dependency>-->
     </dependencies>
     <repositories>       
         <repository>
@@ -87,6 +93,14 @@
             <repository>
                 <id>jitpack.io</id>
                 <url>https://jitpack.io</url>
+                <releases>
+                    <enabled>true</enabled>
+                    <updatePolicy>daily</updatePolicy>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                    <updatePolicy>daily</updatePolicy>
+                </snapshots>
             </repository>
 
     </repositories>
