@@ -216,14 +216,14 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
-        <repository>
-            <id>apache-snapshots</id>
-            <name>Apache SNAPSHOT Repository</name>
-            <url>https://repository.apache.org/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
+<!--        <repository>-->
+<!--            <id>apache-snapshots</id>-->
+<!--            <name>Apache SNAPSHOT Repository</name>-->
+<!--            <url>https://repository.apache.org/snapshots/</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
     </repositories>
     <pluginRepositories>
         <pluginRepository>
