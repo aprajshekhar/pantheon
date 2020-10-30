@@ -406,6 +406,7 @@ class AssemblyDisplay extends Component<any, IAssemblyDisplayState> {
                         }
                     })
                 }else{
+                    // construct locally if call fails
                     console.log("GetPortalURI API returned error. Falling back to url construction at UI")
                     this.getVersionUUID(this.props.location.pathname)
                 }
